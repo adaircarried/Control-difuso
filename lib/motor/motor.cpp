@@ -50,3 +50,15 @@ void motorVelocidadRPM(float rpm) {
   stepper->setSpeedInHz(lround(pasosPorSegundo));
   stepper->runForward();  // un solo sentido de giro
 }
+
+long motorMoverPasos(long pasos) {
+  long posicionInicial = stepper->getCurrentPosition();
+  stepper->setSpeedInHz(lround(PASOS_POR_VUELTA));      // 1 vuelta por segundo (60 rpm)
+  stepper->setAcceleration(lround(PASOS_POR_VUELTA));   // llega a 60 rpm en 1 s
+  stepper->move(pasos);
+  while (stepper->isRunning()) {
+    delay(10);
+  }
+  pasosAnteriores = 0.0;  // el siguiente mando de velocidad arranca desde detenido
+  return stepper->getCurrentPosition() - posicionInicial;
+}

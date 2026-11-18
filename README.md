@@ -106,6 +106,7 @@ con una banda cerrada. Con poleas iguales (1:1) el código no cambia.
 | `V` | Valida el difuso: imprime pwm para pot = 0, 150, 300, ... 1023 junto al valor de MATLAB |
 | `S` | Prueba escalón: frena el motor, aplica pwm = 200 de golpe y registra cada 10 ms durante 2 s |
 | `P512` | Potenciómetro virtual (solo con `USAR_POTENCIOMETRO = false`): pone pot = 512. Cualquier valor de 0 a 1023 |
+| `U` | Calibración: con el motor detenido (`P0`), da exactamente 10 vueltas a 60 rpm y reporta las cuentas del encoder (esperado 24000) |
 
 ## Exportar a MATLAB
 

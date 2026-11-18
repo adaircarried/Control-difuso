@@ -9,6 +9,7 @@
 //   S  prueba escalón: pwm de 0 a 200 de golpe, registra cada 10 ms durante 2 s
 //   V  valida el controlador difuso contra los valores de MATLAB
 //   P  potenciómetro virtual (solo si USAR_POTENCIOMETRO = false): "P512" pone pot = 512
+//   U  calibración: el motor da exactamente 10 vueltas despacio y se reporta lo que contó el encoder
 //
 // Salida: CSV  t_ms,pot,pwm,rpm_cmd,rpm_enc   (las líneas que empiezan con # son mensajes)
 
@@ -24,6 +25,7 @@ const int MODO_POTENCIOMETRO = 0;     // normal: el potenciómetro manda
 const int MODO_ESCALON_ESPERA = 1;    // pwm = 0 hasta que el motor se detiene
 const int MODO_ESCALON_REGISTRO = 2;  // pwm = 200 y se guarda cada muestra de 10 ms
 const int MODO_ESCALON_IMPRIMIR = 3;  // el núcleo 1 imprime lo guardado (el potenciómetro ya manda)
+const int MODO_CALIBRACION = 4;       // comando U: el núcleo 1 mueve el motor; el núcleo 0 no lo toca
 
 // ---------------------------------------------------- Variables compartidas entre núcleos
 volatile int modo = MODO_POTENCIOMETRO;
@@ -75,7 +77,7 @@ void tareaControl(void* parametro) {
 
     // 2) Controlador difuso: pot -> pwm (en la prueba escalón el pwm es fijo)
     float pwm;
-    if (modo == MODO_ESCALON_ESPERA) {
+    if (modo == MODO_ESCALON_ESPERA || modo == MODO_CALIBRACION) {
       pwm = 0.0;
     } else if (modo == MODO_ESCALON_REGISTRO) {
       pwm = PWM_ESCALON;
@@ -88,7 +90,11 @@ void tareaControl(void* parametro) {
 
     // 4) Filtro de primer orden (tau = 0.2 s) y mando al motor
     rpmComando = rpmComando + (rpmObjetivo - rpmComando) * T / TAU_FILTRO;
-    motorVelocidadRPM(rpmComando);
+    if (modo == MODO_CALIBRACION) {
+      rpmComando = 0.0;  // durante la calibración el motor lo mueve el núcleo 1
+    } else {
+      motorVelocidadRPM(rpmComando);
+    }
 
     // 5) Velocidad real con el encoder, en los últimos 10 ms
     long cuentas = encoderCuentas();
@@ -160,6 +166,24 @@ void validarDifuso() {
   }
 }
 
+void calibrarVueltas() {
+  const int VUELTAS = 10;
+  long pasos = lround(VUELTAS * PASOS_POR_VUELTA);
+  Serial.printf("# Calibración: %d vueltas = %ld pasos a 60 rpm. Cuenta las vueltas del eje...\n", VUELTAS, pasos);
+
+  long cuentasInicio = encoderCuentas();
+  long pasosDados = motorMoverPasos(pasos);
+  delay(300);  // que el eje termine de detenerse
+  long cuentas = encoderCuentas() - cuentasInicio;
+  if (ENCODER_INVERTIDO) cuentas = -cuentas;
+
+  Serial.printf("# Pasos mandados: %ld   pasos que dio la librería: %ld\n", pasos, pasosDados);
+  Serial.printf("# Cuentas del encoder: %ld   (esperado: %d = %d vueltas x %d)\n",
+                cuentas, VUELTAS * CUENTAS_POR_VUELTA, VUELTAS, CUENTAS_POR_VUELTA);
+  Serial.printf("# Vueltas según el encoder: %.2f\n", cuentas / (float)CUENTAS_POR_VUELTA);
+  modo = MODO_POTENCIOMETRO;
+}
+
 void atenderComandos() {
   if (!Serial.available()) return;
   String linea = Serial.readStringUntil('\n');
@@ -176,6 +200,16 @@ void atenderComandos() {
     }
   } else if (comando == 'V') {
     validarDifuso();
+  } else if (comando == 'U') {
+    if (!USAR_POTENCIOMETRO && potSerial > 0) {
+      Serial.println("# Primero detén el motor con P0 y espera a que se pare");
+    } else if (modo == MODO_POTENCIOMETRO) {
+      modo = MODO_CALIBRACION;
+      delay(50);  // el núcleo 0 deja de mandar velocidad al motor
+      calibrarVueltas();
+    } else {
+      Serial.println("# Espera a que termine la prueba escalón");
+    }
   } else if (comando == 'P') {
     if (USAR_POTENCIOMETRO) {
       Serial.println("# Se está usando el potenciómetro real (USAR_POTENCIOMETRO = true)");
@@ -205,7 +239,7 @@ void setup() {
   xTaskCreatePinnedToCore(tareaControl, "control", 4096, NULL, 20, NULL, 0);
 
   Serial.println();
-  Serial.println("# Control difuso de velocidad (lazo abierto).  S: prueba escalón   V: validar difuso");
+  Serial.println("# Control difuso de velocidad (lazo abierto).  S: prueba escalón   V: validar difuso   U: 10 vueltas");
   if (!USAR_POTENCIOMETRO) Serial.println("# Sin potenciómetro: escribe P y un valor de 0 a 1023 (por ejemplo P512)");
   Serial.println("t_ms,pot,pwm,rpm_cmd,rpm_enc");
 }
