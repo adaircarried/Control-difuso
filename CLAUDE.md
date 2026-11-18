@@ -67,4 +67,6 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
 
 - Compila y corre en el ESP32 de 38 pines. Validación `V` en hardware: los 8 valores coinciden con MATLAB.
 - Primera subida llegó dañada (MD5) a 921600 baudios: se resolvió con Erase Flash y `upload_speed = 115200`.
-- Pendiente: conectar driver, encoder y fuente de 12 V; probar con `P<valor>` y la prueba escalón `S`.
+- Primera prueba con motor (12 V): rpm_enc negativa (ENCODER_INVERTIDO = true) y de la mitad de rpm_cmd
+  (111 de 235 en el escalón, 145 de 300 en estado estable). La forma y τ ≈ 0.2 s sí coinciden.
+  Sospecha: micropaso 1/16 en lugar de 1/8 (revisar M0 = M1 = 3.3 V, M2 = GND) o acople que no es 1:1.

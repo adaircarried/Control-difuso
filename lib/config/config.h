@@ -31,7 +31,7 @@ const float RPM_MINIMA = 1.0;  // por debajo de esto se detienen los pulsos
 const int CUENTAS_POR_VUELTA = 2400;  // 600 PPR x 4 (cuadratura completa)
 const int FILTRO_ENCODER = 1023;      // filtro de hardware del PCNT: ignora pulsos < 12.8 us
 const bool PULLUP_INTERNA = true;     // pull-ups internas del ESP32, como en el péndulo
-const bool ENCODER_INVERTIDO = false; // si rpm_enc sale negativa con el motor girando, cambiar a true
+const bool ENCODER_INVERTIDO = true;  // true: con el encoder acoplado al motor, rpm_enc salía negativa (prueba en hardware)
 
 // ===================================================== Lazo de velocidad (lazo abierto)
 const float T = 0.01;           // periodo de control [s] (10 ms)
