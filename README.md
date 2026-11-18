@@ -20,15 +20,72 @@ matlab/identificar_escalon.m  K y tau a partir de escalon.csv
 
 ## Conexiones
 
-El cableado del péndulo **no cambia**. Solo se agrega el potenciómetro:
+El cableado eléctrico del péndulo **no cambia**. Solo se agrega el potenciómetro y se mueve el encoder de lugar (mecánicamente).
 
-| Potenciómetro 10 kΩ | Va a |
+### Lo que se queda igual
+
+| Desde | Hacia | Nota |
+|---|---|---|
+| GPIO 25 | STEP del DRV8825 | |
+| GPIO 26 | DIR del DRV8825 | |
+| GPIO 27 | EN del DRV8825 | activo en bajo |
+| 3.3V del ESP32 | RST y SLP del driver (puenteados), M0 y M1 | M0 = M1 = 3.3 V y M2 = GND: 1/8 de paso |
+| GND del ESP32 | GND lógico del driver, M2 | |
+| +24 V de la fuente | VMOT | capacitor de 100 µF entre VMOT y GND, pegado al driver |
+| − de la fuente | GND junto a VMOT | tierra común con el ESP32 |
+| Bobinas del motor | A1/A2 y B1/B2 | Vref ≈ 0.66 V (≈ 1.3 A), sin cambios |
+| Encoder rojo | VIN (5 V) del ESP32 | |
+| Encoder negro | GND | |
+| Encoder verde (A) | GPIO 32 | pull-ups internas, sin resistencias |
+| Encoder blanco (B) | GPIO 33 | |
+
+### Lo nuevo: potenciómetro de 10 kΩ
+
+| Pata del potenciómetro | Va a |
 |---|---|
-| Extremo 1 | 3.3V del ESP32 (no 5 V) |
+| Extremo 1 | **3.3V** del ESP32 (nunca 5 V: el ADC solo aguanta 3.3 V) |
 | Extremo 2 | GND |
-| Cursor (centro) | GPIO 34 |
+| Cursor (la del centro) | GPIO 34 |
 
-El encoder se acopla al eje del motor y la banda GT2 se quita.
+Si al girarlo al máximo la lectura baja en lugar de subir, intercambia los extremos (no el cursor).
+El ADC del ESP32 no distingue bien los primeros ~0.1 V ni los últimos ~0.2 V: en las puntas del recorrido
+el potenciómetro marca 0 o 1023 un poco antes de llegar al tope. Es normal.
+
+## Acople del encoder al motor
+
+En el péndulo el encoder medía el **ángulo del péndulo** (el péndulo iba montado en su eje, sobre el carro).
+Ahora se mide la **velocidad del motor**, así que el eje del encoder tiene que girar junto con el eje del motor:
+
+1. **Quita la banda GT2.** Si no, el carro recorrería los 0.88 m del riel en unos 4 s a 300 rpm y chocaría.
+2. **Quita la polea del eje del motor** (aflojando los dos prisioneros) y **quita el péndulo** del eje del encoder.
+3. **Une los dos ejes con un acople flexible de 5 mm a 6 mm**: el eje del NEMA 17 mide 5 mm y el del LPD3806 6 mm.
+   Es el acople de aluminio con ranura en espiral que se usa en impresoras 3D (5×6 mm).
+4. **Fija el cuerpo del encoder** con una escuadra o soporte, alineado con el eje del motor y sin forzarlo.
+   El acople flexible tolera desalineaciones pequeñas; un acople rígido cargaría los rodamientos del encoder.
+
+Alternativa sin acople: dejar la polea en el motor, poner otra polea GT2 de 20 dientes en el encoder y unirlas
+con una banda cerrada. Con poleas iguales (1:1) el código no cambia.
+
+## Condiciones eléctricas
+
+- Fuente de 24 V, Vref y micropaso **sin cambios**. El driver con disipador y ventilador.
+- El driver solo se energiza mientras el motor gira (auto-enable) y se apaga 0.5 s después de detenerse,
+  para que no se caliente. Con el motor detenido el eje gira libre: es normal.
+- Encender: primero el USB, luego los 24 V. Apagar: primero los 24 V, luego el USB.
+- Subir el programa siempre con los 24 V apagados. Nunca conectar ni desconectar el motor con el driver encendido.
+- Potenciómetro en cero antes de encender los 24 V.
+- **Pérdida de pasos:** en régimen permanente `rpm_enc` debe ser casi igual a `rpm_cmd`. Si el motor zumba o
+  `rpm_enc` queda abajo, baja `RPM_MAX` en `config.h` (por ejemplo a 250).
+
+## Pasarlo a VS Code
+
+1. En VS Code: `Ctrl+Shift+P` → **Git: Clone** → pega `https://github.com/adaircarried/control-difuso` →
+   elige una carpeta **fuera** de la del péndulo → **Open**.
+   (O en una terminal: `git clone https://github.com/adaircarried/control-difuso.git`.)
+2. Ábrelo en su propia ventana (File → New Window) para que PlatformIO no lo confunda con el del péndulo.
+3. PlatformIO detecta `platformio.ini`; en la barra inferior debe decir `env:motor_difuso`.
+4. Compila con ✓. La primera vez descarga ESP32Encoder y FastAccelStepper.
+5. Para traer cambios nuevos: `git pull` en la terminal de esa carpeta.
 
 ## Cargar el programa
 
