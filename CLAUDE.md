@@ -15,7 +15,7 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
 
 | Elemento | Detalle |
 |---|---|
-| Microcontrolador | ESP32 NodeMCU-32S |
+| Microcontrolador | ESP32 DevKit WROOM-32 de 38 pines (la NodeMCU-32S está en otro proyecto) |
 | Driver | DRV8825, Vref ≈ 0.66 V (≈ 1.3 A), micropaso 1/8 (M0 = M1 = 3.3 V, M2 = GND) |
 | Motor | NEMA 17 17HS4401: 200 × 8 = **1600 pasos/vuelta** |
 | Encoder | LPD3806-600BM, 600 PPR × 4 = **2400 cuentas/vuelta**, pull-ups internas a 3.3 V |
@@ -57,6 +57,10 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
 - Prueba escalón: pwm = 0 hasta que el motor esté detenido 0.5 s, rpm_cmd = 0, y luego pwm = 200 por 200 muestras.
   Las muestras se guardan en memoria y se imprimen al terminar entre `# ESCALON` y `# FIN ESCALON`.
 - Comando `V`: imprime la tabla de validación del difuso contra los valores de MATLAB.
+- Sin potenciómetro (`USAR_POTENCIOMETRO = false`, valor actual): pot se fija por serial con `P<valor>`.
+  No se lee el pin 34 al aire porque daría valores al azar.
+- Pines revisados contra el pinout del ESP32 DevKit de 38 pines (la placa que se usa ahora): ninguno es de
+  arranque (0, 2, 5, 12, 15) ni de la memoria flash (6–11); el potenciómetro está en ADC1.
 - El centroide de los extremos da 0.03 y 254.97 (igual que MATLAB en doble precisión; redondeados: 0.0 y 255.0).
 
 ## Estado

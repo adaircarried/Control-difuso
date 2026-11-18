@@ -8,6 +8,7 @@
 // Comandos (escribir la letra y presionar Enter):
 //   S  prueba escalón: pwm de 0 a 200 de golpe, registra cada 10 ms durante 2 s
 //   V  valida el controlador difuso contra los valores de MATLAB
+//   P  potenciómetro virtual (solo si USAR_POTENCIOMETRO = false): "P512" pone pot = 512
 //
 // Salida: CSV  t_ms,pot,pwm,rpm_cmd,rpm_enc   (las líneas que empiezan con # son mensajes)
 
@@ -27,6 +28,7 @@ const int MODO_ESCALON_IMPRIMIR = 3;  // el núcleo 1 imprime lo guardado (el po
 // ---------------------------------------------------- Variables compartidas entre núcleos
 volatile int modo = MODO_POTENCIOMETRO;
 volatile bool pedirEscalon = false;  // el núcleo 1 pide, el núcleo 0 actúa
+volatile float potSerial = 0.0;      // potenciómetro virtual (comando P), arranca en 0
 
 struct Muestra {
   unsigned long tiempoMs;
@@ -57,8 +59,13 @@ void tareaControl(void* parametro) {
     // Dormir hasta exactamente 10 ms después del despertar anterior: periodo fijo
     vTaskDelayUntil(&ultimoDespertar, periodoTicks);
 
-    // 1) Potenciómetro: lectura de 12 bits escalada a 0–1023
-    float pot = analogRead(PIN_POTENCIOMETRO) * POT_MAXIMO / ADC_MAXIMO;
+    // 1) Potenciómetro: lectura de 12 bits escalada a 0–1023 (o el valor virtual del comando P)
+    float pot;
+    if (USAR_POTENCIOMETRO) {
+      pot = analogRead(PIN_POTENCIOMETRO) * POT_MAXIMO / ADC_MAXIMO;
+    } else {
+      pot = potSerial;
+    }
 
     if (pedirEscalon) {
       modo = MODO_ESCALON_ESPERA;
@@ -169,6 +176,16 @@ void atenderComandos() {
     }
   } else if (comando == 'V') {
     validarDifuso();
+  } else if (comando == 'P') {
+    if (USAR_POTENCIOMETRO) {
+      Serial.println("# Se está usando el potenciómetro real (USAR_POTENCIOMETRO = true)");
+    } else {
+      float valor = linea.substring(1).toFloat();  // número después de la P
+      if (valor < 0) valor = 0;
+      if (valor > POT_MAXIMO) valor = POT_MAXIMO;
+      potSerial = valor;
+      Serial.printf("# pot virtual = %.1f\n", valor);
+    }
   }
 }
 
@@ -189,6 +206,7 @@ void setup() {
 
   Serial.println();
   Serial.println("# Control difuso de velocidad (lazo abierto).  S: prueba escalón   V: validar difuso");
+  if (!USAR_POTENCIOMETRO) Serial.println("# Sin potenciómetro: escribe P y un valor de 0 a 1023 (por ejemplo P512)");
   Serial.println("t_ms,pot,pwm,rpm_cmd,rpm_enc");
 }
 

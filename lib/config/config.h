@@ -14,6 +14,10 @@ const int PIN_ENABLE = 27;         // habilita el driver (activo en bajo)
 const int PIN_POTENCIOMETRO = 34;  // cursor del potenciómetro de 10 kΩ (ADC1, canal 6; pin solo de entrada)
 
 // ===================================================== Potenciómetro (ADC)
+// false: sin potenciómetro conectado. El valor de pot se escribe por serial con el comando P
+// (por ejemplo "P512"). Con el pin 34 al aire el ADC lee valores al azar y el motor se movería solo.
+// true: se lee el potenciómetro real en el pin 34.
+const bool USAR_POTENCIOMETRO = false;
 const float ADC_MAXIMO = 4095.0;  // ADC de 12 bits
 const float POT_MAXIMO = 1023.0;  // escala de la práctica: pot = adc * 1023 / 4095
 

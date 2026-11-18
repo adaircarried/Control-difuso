@@ -41,6 +41,11 @@ El cableado eléctrico del péndulo **no cambia**. Solo se agrega el potencióme
 
 ### Lo nuevo: potenciómetro de 10 kΩ
 
+**Sin potenciómetro:** deja `USAR_POTENCIOMETRO = false` en `config.h` (así viene) y el pin 34 sin conectar.
+El valor de pot se escribe por el monitor con `P` y un número (`P0`, `P300`, `P1023`). Cuando conectes el
+potenciómetro, cambia a `true` y vuelve a subir el programa.
+
+
 | Pata del potenciómetro | Va a |
 |---|---|
 | Extremo 1 | **3.3V** del ESP32 (nunca 5 V: el ADC solo aguanta 3.3 V) |
@@ -100,6 +105,7 @@ con una banda cerrada. Con poleas iguales (1:1) el código no cambia.
 |---|---|
 | `V` | Valida el difuso: imprime pwm para pot = 0, 150, 300, ... 1023 junto al valor de MATLAB |
 | `S` | Prueba escalón: frena el motor, aplica pwm = 200 de golpe y registra cada 10 ms durante 2 s |
+| `P512` | Potenciómetro virtual (solo con `USAR_POTENCIOMETRO = false`): pone pot = 512. Cualquier valor de 0 a 1023 |
 
 ## Exportar a MATLAB
 
