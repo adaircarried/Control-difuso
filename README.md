@@ -29,7 +29,7 @@ El cableado eléctrico del péndulo **no cambia**. Solo se agrega el potencióme
 | GPIO 25 | STEP del DRV8825 | |
 | GPIO 26 | DIR del DRV8825 | |
 | GPIO 27 | EN del DRV8825 | activo en bajo |
-| 3.3V del ESP32 | RST y SLP del driver (puenteados), M0 y M1 | M0 = M1 = 3.3 V y M2 = GND: 1/8 de paso |
+| 3.3V del ESP32 | RST y SLP del driver (puenteados), M0 y M1 | M0 = M1 = 3.3 V y M2 = GND (1/8 de paso). Medido con `U`: 3200 pasos/vuelta |
 | GND del ESP32 | GND lógico del driver, M2 | |
 | +24 V de la fuente | VMOT | capacitor de 100 µF entre VMOT y GND, pegado al driver |
 | − de la fuente | GND junto a VMOT | tierra común con el ESP32 |

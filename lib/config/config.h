@@ -22,8 +22,9 @@ const float ADC_MAXIMO = 4095.0;  // ADC de 12 bits
 const float POT_MAXIMO = 1023.0;  // escala de la práctica: pot = adc * 1023 / 4095
 
 // ===================================================== Motor (DRV8825 + NEMA 17)
-const int MICROPASOS = 8;                           // M0 = M1 = 3.3 V, M2 = GND: 1/8 de paso (sin cambios)
-const float PASOS_POR_VUELTA = 200.0 * MICROPASOS;  // 200 pasos del motor x 8 = 1600 pasos/vuelta
+// Pasos por vuelta MEDIDOS con el comando U: 16000 pasos dieron 5 vueltas (encoder y conteo a mano).
+// Con 1/8 de paso serían 200 x 8 = 1600; lo medido equivale a 1/16 de paso (200 x 16 = 3200).
+const float PASOS_POR_VUELTA = 3200.0;
 const float RPM_MAX = 300.0;   // rpm para pwm = 255. Bajarlo si el motor pierde pasos
 const float RPM_MINIMA = 1.0;  // por debajo de esto se detienen los pulsos
 

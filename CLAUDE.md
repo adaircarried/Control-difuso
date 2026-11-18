@@ -17,7 +17,7 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
 |---|---|
 | Microcontrolador | ESP32 DevKit WROOM-32 de 38 pines (la NodeMCU-32S está en otro proyecto) |
 | Driver | DRV8825, Vref ≈ 0.66 V (≈ 1.3 A), micropaso 1/8 (M0 = M1 = 3.3 V, M2 = GND) |
-| Motor | NEMA 17 17HS4401: 200 × 8 = **1600 pasos/vuelta** |
+| Motor | NEMA 17 17HS4401: **3200 pasos/vuelta medidos** con el comando `U` (equivale a 1/16 de paso) |
 | Encoder | LPD3806-600BM, 600 PPR × 4 = **2400 cuentas/vuelta**, pull-ups internas a 3.3 V |
 | Montaje | Encoder acoplado al eje del motor; banda GT2 quitada |
 | Potenciómetro | 10 kΩ, extremos a 3.3 V y GND, cursor a GPIO 34 (ADC1) |
@@ -40,7 +40,7 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
    - 5 reglas: conjunto i de entrada → conjunto i de salida.
    - Implicación min, agregación max, centroide discreto con 101 puntos en [−63.75, 318.75]. Saturar a [0, 255].
    - Valores de validación: pot 0→0.0, 150→36.3, 300→77.4, 450→109.6, 600→151.4, 700→172.0, 850→213.9, 1023→255.0.
-3. `rpm_obj = pwm/255 · RPM_MAX`, con RPM_MAX = 300 (bajarlo si el motor pierde pasos). Frecuencia de pasos con 1600 pasos/vuelta.
+3. `rpm_obj = pwm/255 · RPM_MAX`, con RPM_MAX = 300 (bajarlo si el motor pierde pasos). Frecuencia de pasos con los pasos/vuelta reales (3200, medidos).
 4. Filtro de primer orden, τ = 0.2 s, T = 10 ms: `rpm_cmd += (rpm_obj − rpm_cmd)·T/τ`. Pulsos STEP sin bloquear.
    Con rpm_cmd muy baja se detienen los pulsos. Un solo sentido de giro.
 5. RPM reales con el encoder cada 100 ms.
@@ -69,4 +69,6 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
 - Primera subida llegó dañada (MD5) a 921600 baudios: se resolvió con Erase Flash y `upload_speed = 115200`.
 - Primera prueba con motor (12 V): rpm_enc negativa (ENCODER_INVERTIDO = true) y de la mitad de rpm_cmd
   (111 de 235 en el escalón, 145 de 300 en estado estable). La forma y τ ≈ 0.2 s sí coinciden.
-  Sospecha: micropaso 1/16 en lugar de 1/8 (revisar M0 = M1 = 3.3 V, M2 = GND) o acople que no es 1:1.
+- Calibración con `U` (10 vueltas = 16000 pasos): el eje dio 5 vueltas (contadas a mano) y el encoder 12001 cuentas.
+  El encoder está bien; el motor necesita **3200 pasos/vuelta** (equivale a 1/16 de paso aunque M0 = M1 = 3.3 V
+  y M2 = GND según el autor). Se fijó `PASOS_POR_VUELTA = 3200` (valor medido).
