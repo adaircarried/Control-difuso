@@ -112,7 +112,7 @@ con una banda cerrada. Con poleas iguales (1:1) el código no cambia.
 **Opción 1 (recomendada): log del monitor.** Con `log2file` en `platformio.ini`, todo lo que muestra el monitor
 se guarda en `logs/device-monitor-<fecha>.log`. Después:
 
-1. Abre `matlab/leer_log.m`, pon el nombre de tu log y córrelo desde la carpeta `matlab/`.
+1. Corre `matlab/leer_log.m`. Revisa solo todos los logs de `logs/` (no hay que escribir el nombre).
 2. Genera `lazo_abierto.csv` (cada 100 ms) y `escalon.csv` (última prueba escalón) y grafica.
 3. Corre `identificar_escalon.m` para obtener K y tau.
 

@@ -48,5 +48,6 @@ end
 clear s;   % cierra el puerto
 
 tabla = array2table(datos, 'VariableNames', nombres);
-writetable(tabla, archivo);
+carpeta = fileparts(mfilename('fullpath'));   % se guarda junto a este archivo
+writetable(tabla, fullfile(carpeta, archivo));
 fprintf('%s: %d muestras\n', archivo, height(tabla));

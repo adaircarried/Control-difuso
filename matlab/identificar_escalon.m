@@ -4,7 +4,13 @@
 
 clear; clc;
 
-datos = readtable('escalon.csv');
+carpeta = fileparts(mfilename('fullpath'));          % carpeta matlab/ (donde está este archivo)
+archivo = fullfile(carpeta, 'escalon.csv');
+if ~isfile(archivo)
+    error(['No existe escalon.csv. Primero corre leer_log.m y revisa que diga ' ...
+           '"escalon.csv: 200 muestras".']);
+end
+datos = readtable(archivo);
 t = datos.t_ms / 1000;        % [s]
 u = datos.pwm(1);             % tamaño del escalón (200)
 y = datos.rpm_enc;            % rpm medidas con el encoder
