@@ -116,6 +116,10 @@ se guarda en `logs/device-monitor-<fecha>.log`. Después:
 1. Corre `matlab/leer_log.m`. Revisa solo todos los logs de `logs/` (no hay que escribir el nombre).
 2. Genera `lazo_abierto.csv` (cada 100 ms) y `escalon.csv` (última prueba escalón) y grafica.
 3. Corre `identificar_escalon.m` para obtener K y tau.
+**Interfaz para presentar (sin potenciómetro):** cierra el monitor de VS Code y en MATLAB escribe
+`interfaz_difuso("COM7")`. Un deslizador hace de potenciómetro, la gráfica muestra rpm_cmd y rpm_enc en tiempo
+real y hay botones para validar (V), prueba escalón (S, con K y tau), detener y guardar CSV.
+
 4. Corre `tabla_barrido.m`: valores en estado estable de cada nivel de pot y la curva pot → velocidad.
 
 **Opción 2: directo desde MATLAB.** Cierra el monitor de VS Code, pon tu puerto en `matlab/capturar_serial.m`
