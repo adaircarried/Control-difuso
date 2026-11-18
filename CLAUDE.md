@@ -65,6 +65,6 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
 
 ## Estado
 
-- Código escrito y revisado contra las firmas de las librerías (falta compilarlo en PlatformIO en la PC del autor).
-- El difuso (`difuso.cpp` real) se probó en la PC contra los 8 valores de MATLAB: coincide.
-- Pendiente: prueba en hardware (validar con `V`, girar el potenciómetro, prueba escalón `S`).
+- Compila y corre en el ESP32 de 38 pines. Validación `V` en hardware: los 8 valores coinciden con MATLAB.
+- Primera subida llegó dañada (MD5) a 921600 baudios: se resolvió con Erase Flash y `upload_speed = 115200`.
+- Pendiente: conectar driver, encoder y fuente de 12 V; probar con `P<valor>` y la prueba escalón `S`.
