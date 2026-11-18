@@ -72,3 +72,6 @@ repositorio del péndulo invertido. Solo se reutiliza el mismo hardware y cablea
 - Calibración con `U` (10 vueltas = 16000 pasos): el eje dio 5 vueltas (contadas a mano) y el encoder 12001 cuentas.
   El encoder está bien; el motor necesita **3200 pasos/vuelta** (equivale a 1/16 de paso aunque M0 = M1 = 3.3 V
   y M2 = GND según el autor). Se fijó `PASOS_POR_VUELTA = 3200` (valor medido).
+- **Resultados con 3200 pasos/vuelta:** escalón pwm 0→200: K = 1.124 rpm/pwm (esperado 1.176, −4.4 %) y
+  τ = 0.210 s (filtro de 0.2 s + un periodo). Barrido P150–P850: rpm_enc prácticamente igual a rpm_cmd;
+  en P1023 (300 rpm) llega a ~290–300 (límite del motor con 12 V).

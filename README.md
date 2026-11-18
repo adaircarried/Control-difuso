@@ -116,6 +116,7 @@ se guarda en `logs/device-monitor-<fecha>.log`. Después:
 1. Corre `matlab/leer_log.m`. Revisa solo todos los logs de `logs/` (no hay que escribir el nombre).
 2. Genera `lazo_abierto.csv` (cada 100 ms) y `escalon.csv` (última prueba escalón) y grafica.
 3. Corre `identificar_escalon.m` para obtener K y tau.
+4. Corre `tabla_barrido.m`: valores en estado estable de cada nivel de pot y la curva pot → velocidad.
 
 **Opción 2: directo desde MATLAB.** Cierra el monitor de VS Code, pon tu puerto en `matlab/capturar_serial.m`
 (`serialportlist("available")` los muestra) y córrelo con `modo = "escalon"` o `"continuo"`.
